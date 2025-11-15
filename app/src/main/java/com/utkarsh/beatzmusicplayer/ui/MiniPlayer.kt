@@ -3,6 +3,7 @@ package com.utkarsh.beatzmusicplayer.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -67,7 +68,7 @@ fun MiniPlayer(
         tonalElevation = 4.dp,
         shape = RoundedCornerShape(12.dp),
         shadowElevation = 4.dp,
-        color = MaterialTheme.colorScheme.surfaceVariant
+        color = if (isSystemInDarkTheme()) Color(0xFF1F1F1F) else Color(0xFFF5F5F5)
     ) {
         Row(
             modifier = Modifier
