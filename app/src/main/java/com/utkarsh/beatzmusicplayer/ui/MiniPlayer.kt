@@ -56,7 +56,7 @@ fun MiniPlayer(
 
     // Coil painter — uses bitmap or placeholder
     val painter = rememberAsyncImagePainter(
-        model = bitmap ?: R.drawable.ic_launcher_background
+        model = bitmap ?: R.drawable.album_placeholder
     )
 
 

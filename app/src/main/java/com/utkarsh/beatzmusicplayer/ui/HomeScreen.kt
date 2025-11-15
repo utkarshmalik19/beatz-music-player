@@ -117,7 +117,7 @@ fun SongItem(song: AudioFile, onClick: () -> Unit) {
             // Album Art
             Image(
                 painter = rememberAsyncImagePainter(
-                    model = bitmap ?: R.drawable.ic_launcher_background
+                    model = bitmap ?: R.drawable.album_placeholder
                 ),
                 contentDescription = "Album Art",
                 modifier = Modifier
