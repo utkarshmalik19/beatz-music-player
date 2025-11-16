@@ -103,7 +103,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 onOpenPlayer = { navController.navigate("full_player")},
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
+
             )
         }
     }
