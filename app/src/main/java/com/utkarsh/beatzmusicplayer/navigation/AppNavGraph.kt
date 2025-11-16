@@ -15,6 +15,7 @@ import androidx.navigation.compose.*
 import com.utkarsh.beatzmusicplayer.ui.HomeScreen
 import com.utkarsh.beatzmusicplayer.ui.FullPlayerScreen
 import com.utkarsh.beatzmusicplayer.ui.LibraryScreen
+import com.utkarsh.beatzmusicplayer.ui.LikedSongsScreen
 import com.utkarsh.beatzmusicplayer.ui.PlaceholderScreen
 import com.utkarsh.beatzmusicplayer.viewmodel.HomeViewModel
 
@@ -34,6 +35,8 @@ fun AppNavGraph(viewModel: HomeViewModel) {
         BottomNavItem.Library,
         BottomNavItem.Profile
     )
+    val likedSongs by viewModel.likedSongs.collectAsState()
+    val playlists by viewModel.playlists.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -73,10 +76,11 @@ fun AppNavGraph(viewModel: HomeViewModel) {
             }
             composable(BottomNavItem.Library.route) {
                 LibraryScreen(
-                    likedSongs = viewModel.likedSongs.collectAsState().value,
-                    playlists = viewModel.playlists.collectAsState().value,
-                    onSongClick = { viewModel.playSong(it) },
-                    onPlaylistClick = { /* TODO: open playlist screen */ }
+                    likedSongs = likedSongs,
+                    playlists = playlists,
+                    onLikedSongsClick = { navController.navigate("liked_songs") },
+                    onPlaylistClick = { /* navigate to playlist screen */ },
+                    onSongClick = { viewModel.playSong(it) }
                 )
             }
             composable(BottomNavItem.Profile.route) {
@@ -84,6 +88,13 @@ fun AppNavGraph(viewModel: HomeViewModel) {
             }
             composable("full_player") {
                 FullPlayerScreen(viewModel = viewModel, navController = navController)
+            }
+            composable("liked_songs") {
+                LikedSongsScreen(
+                    likedSongs = viewModel.likedSongs.collectAsState().value,
+                    onSongClick = { viewModel.playSong(it) },
+                    onToggleLike = { viewModel.toggleLikeSong(it) }
+                )
             }
         }
     }

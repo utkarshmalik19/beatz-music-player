@@ -18,6 +18,7 @@ fun LibraryScreen(
     likedSongs: List<AudioFile>,
     playlists: Map<String, List<AudioFile>>,
     onPlaylistClick: (String) -> Unit = {},
+    onLikedSongsClick: () -> Unit = {},
     onSongClick: (AudioFile) -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
@@ -26,6 +27,24 @@ fun LibraryScreen(
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
+        // Liked Songs Tile
+        Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .clickable { onLikedSongsClick() }
+            ) {
+                Text(
+                    text = "Liked Songs",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+
 
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(playlists.keys.toList()) { playlist ->
@@ -43,30 +62,4 @@ fun LibraryScreen(
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Liked Songs",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            items(likedSongs) { song ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                        .clickable { onSongClick(song) }
-                ) {
-                    Text(
-                        text = song.title,
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-        }
     }
-}
