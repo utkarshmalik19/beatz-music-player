@@ -102,20 +102,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
             }
 
             // MINI PLAYER AT THE BOTTOM
-            MiniPlayer(
-                currentSong = currentSong,
-                isPlaying = isPlaying,
-                progress = progress,
-                duration = duration,
-                onPlayPause = { viewModel.togglePlayPause() },
-                onNext = { viewModel.playNext() },
-                onPrevious = { viewModel.playPrevious() },
-                onSeek = { viewModel.seekTo(it) },
-                onOpenPlayer = { navController.navigate("full_player")},
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
 
-            )
         }
     }
 }
