@@ -17,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
+import com.utkarsh.beatzmusicplayer.navigation.AppNavGraph
 import com.utkarsh.beatzmusicplayer.repository.AudioRepository
 import com.utkarsh.beatzmusicplayer.ui.HomeScreen
 import com.utkarsh.beatzmusicplayer.ui.theme.BeatzMusicPlayerTheme
@@ -34,10 +36,11 @@ class MainActivity : ComponentActivity() {
         requestPermission()
 
         val repo = AudioRepository(this)
-
+        val homeViewModel = HomeViewModel(repo, this)
         setContent {
-            BeatzMusicPlayerTheme {
 
+            BeatzMusicPlayerTheme {
+                val navController = rememberNavController()
                 // Check if permission is granted
                 val hasPermission = ActivityCompat.checkSelfPermission(
                     this,
@@ -49,7 +52,8 @@ class MainActivity : ComponentActivity() {
                     val viewModel: HomeViewModel = viewModel(
                         factory = HomeViewModelFactory(repo, this)
                     )
-                    HomeScreen(viewModel)
+                    AppNavGraph(viewModel = homeViewModel)
+                   // HomeScreen(viewModel, navController = navController)
 
                 } else {
                     // UI shown before permission is granted

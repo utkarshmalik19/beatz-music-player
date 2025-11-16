@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.utkarsh.beatzmusicplayer.R
 import com.utkarsh.beatzmusicplayer.model.AudioFile
@@ -49,10 +50,12 @@ import com.utkarsh.beatzmusicplayer.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(viewModel: HomeViewModel) {
+fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     val songs by viewModel.audioFiles.collectAsState()
     val currentSong by viewModel.currentSong.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
+    val progress by viewModel.progress.collectAsState()
+    val duration by viewModel.duration.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadSongs()
@@ -82,11 +85,14 @@ fun HomeScreen(viewModel: HomeViewModel) {
             MiniPlayer(
                 currentSong = currentSong,
                 isPlaying = isPlaying,
+                progress = progress,
+                duration = duration,
                 onPlayPause = { viewModel.togglePlayPause() },
                 onNext = { viewModel.playNext() },
                 onPrevious = { viewModel.playPrevious() },
-                modifier = Modifier.align(Alignment.BottomCenter),
-                onOpenPlayer = { /* TODO: navigate to full player */ }
+                onSeek = { viewModel.seekTo(it) },
+                onOpenPlayer = { navController.navigate("full_player")},
+                modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
     }
