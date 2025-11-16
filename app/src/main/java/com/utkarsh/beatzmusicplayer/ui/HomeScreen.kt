@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.utkarsh.beatzmusicplayer.R
 import com.utkarsh.beatzmusicplayer.model.AudioFile
@@ -90,6 +91,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = padding.calculateTopPadding())
+
             ){
                 items(songs) { audio ->
                     SongItem(
@@ -101,7 +103,6 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 }
             }
 
-            // MINI PLAYER AT THE BOTTOM
 
         }
     }
@@ -229,17 +230,13 @@ fun AlbumArtFromMetadata(
     path: String,
     modifier: Modifier = Modifier
 ) {
-    // This runs the heavy bitmap extraction off the main thread
+    // Load album art off the main thread
     val bitmapState = produceState<Bitmap?>(initialValue = null, path) {
         value = getAlbumArt(path)
     }
 
-    val painter = rememberAsyncImagePainter(
-        model = bitmapState.value ?: R.drawable.album_placeholder
-    )
-
-    Image(
-        painter = painter,
+    AsyncImage(
+        model = bitmapState.value ?: R.drawable.album_placeholder,
         contentDescription = "Album Art",
         modifier = modifier
             .size(48.dp)
