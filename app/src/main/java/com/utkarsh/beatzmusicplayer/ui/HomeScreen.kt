@@ -19,10 +19,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.runtime.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -61,6 +71,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     val isPlaying by viewModel.isPlaying.collectAsState()
     val progress by viewModel.progress.collectAsState()
     val duration by viewModel.duration.collectAsState()
+    val likedSongs by viewModel.likedSongs.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadSongs()
@@ -83,9 +94,9 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 items(songs) { audio ->
                     SongItem(
                         song = audio,
-                        onClick = {
-                            viewModel.playSong(audio)  // <-- FIXED to pass AudioFile, not path
-                        }
+                        isLiked = likedSongs.contains(audio),
+                        onClick = { viewModel.playSong(audio) },
+                        onToggleLike = { viewModel.toggleLikeSong(it) }
                     )
                 }
             }
@@ -110,8 +121,13 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
 }
 
 @Composable
-fun SongItem(song: AudioFile, onClick: () -> Unit) {
-
+fun SongItem(
+    song: AudioFile,
+    isLiked: Boolean,
+    onClick: () -> Unit,
+    onToggleLike: (AudioFile) -> Unit
+) {
+    var menuExpanded by remember { mutableStateOf(false) }
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -157,16 +173,69 @@ fun SongItem(song: AudioFile, onClick: () -> Unit) {
             }
 
             // 3-dot menu
-            IconButton(onClick = { /* TODO: menu actions */ }) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Menu",
-                    tint = Color.Gray
-                )
+            Box {
+                IconButton(onClick = { menuExpanded = true }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Menu",
+                        tint = Color.Gray
+                    )
+                }
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false },
+
+                    ) {
+                    DropdownMenuItem(
+                        text = { Text(if (isLiked) "Remove from Favourites" else "Add to Favourites") },
+                        onClick = {
+                            onToggleLike(song)
+                            menuExpanded = false
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = if (isLiked) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                contentDescription = "Like Icon",
+                                tint = if (isLiked) Color.Red else Color.Gray
+                            )
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Add to Playlist") },
+                        onClick = { menuExpanded = false },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.LibraryAdd,
+                                contentDescription = "Add to Playlist icon",
+                            )
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete Song") },
+                        onClick = { menuExpanded = false },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Delete,
+                                contentDescription = "Add to Playlist icon",
+                            )
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Share Song") },
+                        onClick = { menuExpanded = false },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Share,
+                                contentDescription = "Add to Playlist icon",
+                            )
+                        }
+                    )
+                }
             }
         }
     }
 }
+
 
 @Composable
 fun AlbumArtFromMetadata(

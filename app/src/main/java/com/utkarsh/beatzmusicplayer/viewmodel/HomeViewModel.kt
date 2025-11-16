@@ -43,6 +43,41 @@ class HomeViewModel(
         }
     }
 
+    private val _likedSongs = MutableStateFlow<List<AudioFile>>(emptyList())
+    val likedSongs: StateFlow<List<AudioFile>> = _likedSongs.asStateFlow()
+
+    private val _playlists = MutableStateFlow<Map<String, List<AudioFile>>>(emptyMap())
+    val playlists: StateFlow<Map<String, List<AudioFile>>> = _playlists.asStateFlow()
+
+    // Toggle liked song
+    fun toggleLikeSong(song: AudioFile) {
+        val current = _likedSongs.value.toMutableList()
+        if (current.contains(song)) {
+            current.remove(song)
+        } else {
+            current.add(song)
+        }
+        _likedSongs.value = current
+    }
+
+    // Create a new playlist
+    fun createPlaylist(name: String) {
+        if (!_playlists.value.containsKey(name)) {
+            _playlists.value = _playlists.value.toMutableMap().apply { put(name, emptyList()) }
+        }
+    }
+
+    // Add song to a playlist
+    fun addSongToPlaylist(playlistName: String, song: AudioFile) {
+        val current = _playlists.value.toMutableMap()
+        val playlist = current[playlistName]?.toMutableList() ?: mutableListOf()
+        if (!playlist.contains(song)) {
+            playlist.add(song)
+            current[playlistName] = playlist
+            _playlists.value = current
+        }
+    }
+
     private fun observePlayer() {
         viewModelScope.launch {
             player.currentPosition.collectLatest { _progress.value = it }

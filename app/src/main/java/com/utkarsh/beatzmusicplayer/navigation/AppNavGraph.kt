@@ -14,6 +14,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import com.utkarsh.beatzmusicplayer.ui.HomeScreen
 import com.utkarsh.beatzmusicplayer.ui.FullPlayerScreen
+import com.utkarsh.beatzmusicplayer.ui.LibraryScreen
 import com.utkarsh.beatzmusicplayer.ui.PlaceholderScreen
 import com.utkarsh.beatzmusicplayer.viewmodel.HomeViewModel
 
@@ -71,7 +72,12 @@ fun AppNavGraph(viewModel: HomeViewModel) {
                 PlaceholderScreen("Explore")
             }
             composable(BottomNavItem.Library.route) {
-                PlaceholderScreen("Library")
+                LibraryScreen(
+                    likedSongs = viewModel.likedSongs.collectAsState().value,
+                    playlists = viewModel.playlists.collectAsState().value,
+                    onSongClick = { viewModel.playSong(it) },
+                    onPlaylistClick = { /* TODO: open playlist screen */ }
+                )
             }
             composable(BottomNavItem.Profile.route) {
                 PlaceholderScreen("Profile")
