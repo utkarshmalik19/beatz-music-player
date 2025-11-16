@@ -142,14 +142,14 @@ fun SongItem(song: AudioFile, onClick: () -> Unit) {
             ) {
                 Text(
                     text = song.title,
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = song.artist,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     color = Color.Gray,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -161,7 +161,7 @@ fun SongItem(song: AudioFile, onClick: () -> Unit) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "Menu",
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = Color.Gray
                 )
             }
         }
@@ -186,7 +186,7 @@ fun AlbumArtFromMetadata(
         painter = painter,
         contentDescription = "Album Art",
         modifier = modifier
-            .size(56.dp)
+            .size(48.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
     )
