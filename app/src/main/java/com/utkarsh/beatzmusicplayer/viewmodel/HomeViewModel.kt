@@ -38,6 +38,9 @@ class HomeViewModel(
 
     init {
         observePlayer()
+        player.setOnSongCompleteListener {
+            playNext()
+        }
     }
 
     private fun observePlayer() {

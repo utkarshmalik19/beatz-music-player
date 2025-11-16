@@ -2,6 +2,7 @@ package com.utkarsh.beatzmusicplayer.player
 
 import android.content.Context
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,7 @@ import kotlinx.coroutines.launch
 class PlayerManager(context: Context) {
 
     private val exoPlayer = ExoPlayer.Builder(context).build()
+    private var onSongComplete: (() -> Unit)? = null
 
     // Expose current position as StateFlow
     val currentPosition: StateFlow<Long> = flow {
@@ -26,10 +28,22 @@ class PlayerManager(context: Context) {
         }
     }.stateIn(CoroutineScope(Dispatchers.Main), SharingStarted.Eagerly, 0L)
 
+    init {
+        exoPlayer.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    onSongComplete?.invoke()
+                }
+            }
+        })
+    }
     // Expose duration as StateFlow
     private val _duration = MutableStateFlow(0L)
     val duration: StateFlow<Long> = _duration.asStateFlow()
 
+    fun setOnSongCompleteListener(callback: () -> Unit) {
+        onSongComplete = callback
+    }
     fun playSong(path: String) {
         exoPlayer.setMediaItem(MediaItem.fromUri(path))
         exoPlayer.prepare()
