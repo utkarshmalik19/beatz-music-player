@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
@@ -35,7 +36,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.utkarsh.beatzmusicplayer.model.AudioFile
 import com.utkarsh.beatzmusicplayer.player.PlayerManager
@@ -54,77 +57,142 @@ fun FullPlayerScreen(
 
     val song = currentSong ?: return
 
-    // Slider state for smooth dragging
     val sliderPosition = remember { mutableStateOf(progress.toFloat()) }
     val isDragging = remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Beatz Music Player") })
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Filled.KeyboardArrowDown,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(48.dp)
+                        )
+                    }
+                },
+
+                title = { Box(modifier = Modifier.fillMaxWidth()
+                    .padding(end = 48.dp)) {
+                    Text(
+                        text = "Now Playing",
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } })
         }
     ) { padding ->
-        Box(modifier = Modifier.padding(padding)) {
+        Box(modifier = Modifier
+            .padding(padding)
+            .fillMaxSize()
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AlbumArtFromMetadata(song.data, modifier = Modifier.size(300.dp).clip(
-                    RoundedCornerShape(24.dp)
-                ))
+                AlbumArtFromMetadata(
+                    song.data,
+                    modifier = Modifier
+                        .size(320.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                )
 
                 Spacer(modifier = Modifier.height(24.dp))
-                Text(song.title)
-                Text(song.artist)
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = song.title,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1
+                )
+                Text(
+                    text = song.artist,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
+                )
 
-                // Custom slider
+                Spacer(modifier = Modifier.height(32.dp))
+
                 CustomSlider(
                     value = sliderPosition.value,
                     onValueChange = { sliderPosition.value = it },
                     onValueChangeFinished = { viewModel.seekTo(sliderPosition.value.toLong()) },
                     valueRange = 0f..duration.coerceAtLeast(1L).toFloat(),
                     trackHeight = 6.dp,
-                    thumbRadius = 8.dp,
+                    thumbRadius = 10.dp,
                     horizontalPadding = 16.dp,
                     activeTrackBrush = Brush.horizontalGradient(
                         colors = listOf(Color(0xFF00BCD4), MaterialTheme.colorScheme.primary)
                     )
                 )
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(formatTime(sliderPosition.value.toLong()))
-                    Text(formatTime(duration))
+                    Text(formatTime(sliderPosition.value.toLong()), fontSize = 12.sp)
+                    Text(formatTime(duration), fontSize = 12.sp)
                 }
-                // Update slider when not dragging
+
                 LaunchedEffect(progress) {
                     if (!isDragging.value) {
                         sliderPosition.value = progress.toFloat()
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
 
-                Row {
-                    IconButton(onClick = { viewModel.playPrevious() }) {
-                        Icon(Icons.Filled.SkipPrevious, contentDescription = "Previous")
-                    }
-                    IconButton(onClick = { viewModel.togglePlayPause() }) {
+                // Playback buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = { viewModel.playPrevious() },
+                        modifier = Modifier.size(48.dp)
+                    ) {
                         Icon(
-                            if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                            contentDescription = "Play/Pause"
+                            Icons.Filled.SkipPrevious,
+                            contentDescription = "Previous",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(48.dp)
                         )
                     }
-                    IconButton(onClick = { viewModel.playNext() }) {
-                        Icon(Icons.Filled.SkipNext, contentDescription = "Next")
+
+                    IconButton(
+                        onClick = { viewModel.togglePlayPause() },
+                        modifier = Modifier.size(72.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+                            contentDescription = "Play/Pause",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(48.dp)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { viewModel.playNext() },
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Icon(
+                            Icons.Filled.SkipNext,
+                            contentDescription = "Next",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(48.dp)
+                        )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }

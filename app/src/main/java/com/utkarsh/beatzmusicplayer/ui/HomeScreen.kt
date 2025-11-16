@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -38,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,12 +48,14 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.utkarsh.beatzmusicplayer.R
 import com.utkarsh.beatzmusicplayer.model.AudioFile
+import com.utkarsh.beatzmusicplayer.utils.SetSystemBarsDarkTheme
 import com.utkarsh.beatzmusicplayer.utils.getAlbumArt
 import com.utkarsh.beatzmusicplayer.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
+    SetSystemBarsDarkTheme()
     val songs by viewModel.audioFiles.collectAsState()
     val currentSong by viewModel.currentSong.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState()
@@ -63,14 +68,18 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Beatz Music Player") })
+            TopAppBar(title = { Text("Beatz Music Player", fontWeight = FontWeight.Bold) })
         }
     ) { padding ->
 
         // IMPORTANT: Wrap everything in a Box
-        Box(modifier = Modifier.padding(padding)) {
+        Box(modifier = Modifier.fillMaxSize()) {
 
-            LazyColumn {
+            LazyColumn (
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = padding.calculateTopPadding())
+            ){
                 items(songs) { audio ->
                     SongItem(
                         song = audio,
@@ -92,7 +101,9 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                 onPrevious = { viewModel.playPrevious() },
                 onSeek = { viewModel.seekTo(it) },
                 onOpenPlayer = { navController.navigate("full_player")},
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
             )
         }
     }

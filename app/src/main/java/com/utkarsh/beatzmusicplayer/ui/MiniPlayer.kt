@@ -1,6 +1,7 @@
 package com.utkarsh.beatzmusicplayer.ui
 
 import android.graphics.Bitmap
+import android.view.WindowInsets
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
@@ -67,16 +69,22 @@ fun MiniPlayer(
     val painter = rememberAsyncImagePainter(model = albumArtBitmap.value ?: R.drawable.album_placeholder)
 
     val sliderPosition = remember { mutableStateOf(progress.toFloat()) }
-    val isDragging = remember { mutableStateOf(false) }
 
+// Reset slider when song changes
+    LaunchedEffect(currentSong) {
+        sliderPosition.value = 0f
+    }
+
+// Update slider as song progresses
+    LaunchedEffect(progress) {
+        sliderPosition.value = progress.toFloat()
+    }
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .clip(RoundedCornerShape(16.dp))
             .clickable { onOpenPlayer() },
-        tonalElevation = 4.dp,
-        shape = RoundedCornerShape(12.dp),
-        shadowElevation = 4.dp,
+        shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
         color = if (isSystemInDarkTheme()) Color(0xFF1F1F1F) else Color(0xFFF5F5F5)
     ) {
         Column {
@@ -100,6 +108,7 @@ fun MiniPlayer(
                 ) {
                     Text(
                         text = currentSong.title,
+                        fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.bodyMedium,
@@ -138,17 +147,14 @@ fun MiniPlayer(
                     onValueChangeFinished = { onSeek(sliderPosition.value.toLong()) },
                     valueRange = 0f..duration.toFloat(),
                     trackHeight = 4.dp,
-                    thumbRadius = 6.dp,
+                    thumbRadius = 4.dp,
                     horizontalPadding = 16.dp,
-                    activeTrackColor = MaterialTheme.colorScheme.primary
+                    activeTrackColor = MaterialTheme.colorScheme.primary,
+
+
                 )
 
-                // Update slider only if user is not dragging
-                LaunchedEffect(progress) {
-                    if (!isDragging.value && sliderPosition.value != progress.toFloat()) {
-                        sliderPosition.value = progress.toFloat()
-                    }
-                }
+
             }
         }
     }
