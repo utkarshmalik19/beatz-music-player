@@ -68,10 +68,6 @@ import com.utkarsh.beatzmusicplayer.viewmodel.HomeViewModel
 fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     SetSystemBarsDarkTheme()
     val songs by viewModel.audioFiles.collectAsState()
-    val currentSong by viewModel.currentSong.collectAsState()
-    val isPlaying by viewModel.isPlaying.collectAsState()
-    val progress by viewModel.progress.collectAsState()
-    val duration by viewModel.duration.collectAsState()
     val likedSongs by viewModel.likedSongs.collectAsState()
 
     LaunchedEffect(Unit) {
