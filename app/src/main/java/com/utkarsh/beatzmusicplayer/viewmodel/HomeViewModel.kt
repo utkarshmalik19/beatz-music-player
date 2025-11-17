@@ -24,6 +24,12 @@ class HomeViewModel(
     private val _audioFiles = MutableStateFlow<List<AudioFile>>(emptyList())
     val audioFiles: StateFlow<List<AudioFile>> = _audioFiles
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    // ⭐ FILTERED SONGS
+    val filteredSongs = MutableStateFlow<List<AudioFile>>(emptyList())
+
     private val _currentSong = MutableStateFlow<AudioFile?>(null)
     val currentSong: StateFlow<AudioFile?> = _currentSong
 
@@ -86,10 +92,30 @@ class HomeViewModel(
             player.duration.collectLatest { _duration.value = it }
         }
     }
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+        applySearch()
+    }
+
+    private fun applySearch() {
+        val query = _searchQuery.value.lowercase()
+
+        filteredSongs.value =
+            if (query.isBlank()) {
+                _audioFiles.value
+            } else {
+                _audioFiles.value.filter { song ->
+                    song.title.lowercase().contains(query) ||
+                            song.artist.lowercase().contains(query)
+                }
+            }
+    }
 
     fun loadSongs() {
         viewModelScope.launch(Dispatchers.IO) {
-            _audioFiles.value = repo.getAllAudioFiles()
+            val list = repo.getAllAudioFiles()
+            _audioFiles.value = list
+            filteredSongs.value = list
         }
     }
 

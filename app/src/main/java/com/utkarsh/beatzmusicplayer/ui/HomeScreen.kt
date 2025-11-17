@@ -68,28 +68,34 @@ import com.utkarsh.beatzmusicplayer.viewmodel.HomeViewModel
 fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     SetSystemBarsDarkTheme()
     val songs by viewModel.audioFiles.collectAsState()
+    val filteredSongs by viewModel.filteredSongs.collectAsState()
     val likedSongs by viewModel.likedSongs.collectAsState()
-
+    val searchQuery by viewModel.searchQuery.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.loadSongs()
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Beatz Music Player", fontWeight = FontWeight.Bold) })
+
+            topBar = {
+                Column {
+                TopAppBar(title = { Text("Beatz Music Player", fontWeight = FontWeight.Bold) })
+                SongSearchBar(
+                    query = searchQuery,
+                    onQueryChange = { viewModel.updateSearchQuery(it) },
+                    onClear = { viewModel.updateSearchQuery("") }
+                )
+            }
         }
     ) { padding ->
 
-        // IMPORTANT: Wrap everything in a Box
         Box(modifier = Modifier.fillMaxSize()) {
-
-            LazyColumn (
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = padding.calculateTopPadding())
-
-            ){
-                items(songs) { audio ->
+            ) {
+                items(filteredSongs) { audio ->
                     SongItem(
                         song = audio,
                         isLiked = likedSongs.contains(audio),
@@ -98,8 +104,6 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                     )
                 }
             }
-
-
         }
     }
 }
