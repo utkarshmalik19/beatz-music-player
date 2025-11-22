@@ -94,11 +94,15 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
         if (selectedSong != null) {
             AddToPlaylistSheet(
                 playlists = playlists,
+                currentSong = selectedSong!!,
                 onCreatePlaylist = { viewModel.createPlaylist(it) },
                 onAdd = { playlistName ->
                     viewModel.addSongToPlaylist(playlistName, selectedSong!!)
                 },
-                onDismiss = { viewModel.closeAddToPlaylistDialog() }
+                onDismiss = { viewModel.closeAddToPlaylistDialog() },
+                onRemove = { playlistName ->
+                    viewModel.removeSongFromPlaylist(playlistName, selectedSong!!)
+                },
             )
         }
         Box(modifier = Modifier.fillMaxSize()) {

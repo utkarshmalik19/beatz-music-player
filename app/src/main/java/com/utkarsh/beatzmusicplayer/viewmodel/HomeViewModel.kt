@@ -99,6 +99,13 @@ class HomeViewModel(
 
         _playlists.value = updated
     }
+    fun removeSongFromPlaylist(playlistName: String, song: AudioFile) {
+        val current = _playlists.value.toMutableMap()
+        val playlist = current[playlistName]?.toMutableList() ?: return
+        playlist.remove(song)
+        current[playlistName] = playlist
+        _playlists.value = current
+    }
     private fun observePlayer() {
         viewModelScope.launch {
             player.currentPosition.collectLatest { _progress.value = it }
