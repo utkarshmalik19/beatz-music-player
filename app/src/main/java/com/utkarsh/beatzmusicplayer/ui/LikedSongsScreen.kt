@@ -55,7 +55,8 @@ fun LikedSongsScreen(
                         song = song,
                         isLiked = true,                      // because these are favourites
                         onClick = { onSongClick(song) },
-                        onToggleLike = { onToggleLike(song) } // still allow un-liking
+                        onToggleLike = { onToggleLike(song) },
+                        onAddToPlaylist = {}
                     )
                 }
             }

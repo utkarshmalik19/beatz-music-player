@@ -27,6 +27,7 @@ import com.utkarsh.beatzmusicplayer.ui.LibraryScreen
 import com.utkarsh.beatzmusicplayer.ui.LikedSongsScreen
 import com.utkarsh.beatzmusicplayer.ui.MiniPlayer
 import com.utkarsh.beatzmusicplayer.ui.PlaceholderScreen
+import com.utkarsh.beatzmusicplayer.ui.theme.PlaylistDetailsScreen
 import com.utkarsh.beatzmusicplayer.viewmodel.HomeViewModel
 
 sealed class BottomNavItem(val route: String, val label: String, val icon: ImageVector) {
@@ -96,8 +97,15 @@ fun AppNavGraph(viewModel: HomeViewModel) {
                         likedSongs = likedSongs,
                         playlists = playlists,
                         onLikedSongsClick = { navController.navigate("liked_songs") },
-                        onPlaylistClick = {},
-                        onSongClick = { viewModel.playSong(it) }
+                        onPlaylistClick = { playlistName ->
+                            navController.navigate("playlist/$playlistName")
+                        },
+                        onRenamePlaylist = { oldName, newName ->
+                            viewModel.renamePlaylist(oldName, newName)
+                        },
+                        onDeletePlaylist = { name ->
+                            viewModel.deletePlaylist(name)
+                        }
                     )
                 }
 
@@ -118,7 +126,16 @@ fun AppNavGraph(viewModel: HomeViewModel) {
                     }){
                     FullPlayerScreen(viewModel, navController)
                 }
+                composable("playlist/{name}") { backStackEntry ->
+                    val name = backStackEntry.arguments?.getString("name") ?: ""
+                    val playlists by viewModel.playlists.collectAsState()
 
+                    PlaylistDetailsScreen(
+                        playlistName = name,
+                        songs = playlists[name] ?: emptyList(),
+                        onSongClick = { viewModel.playSong(it) }
+                    )
+                }
                 composable(BottomNavItem.Profile.route) {
                     PlaceholderScreen("Profile")
                 }

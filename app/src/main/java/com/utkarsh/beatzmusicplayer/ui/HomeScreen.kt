@@ -71,6 +71,9 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
     val filteredSongs by viewModel.filteredSongs.collectAsState()
     val likedSongs by viewModel.likedSongs.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val selectedSong by viewModel.selectedSongForPlaylist.collectAsState()
+    val playlists by viewModel.playlists.collectAsState()
+
     LaunchedEffect(Unit) {
         viewModel.loadSongs()
     }
@@ -88,7 +91,16 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
             }
         }
     ) { padding ->
-
+        if (selectedSong != null) {
+            AddToPlaylistSheet(
+                playlists = playlists,
+                onCreatePlaylist = { viewModel.createPlaylist(it) },
+                onAdd = { playlistName ->
+                    viewModel.addSongToPlaylist(playlistName, selectedSong!!)
+                },
+                onDismiss = { viewModel.closeAddToPlaylistDialog() }
+            )
+        }
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 modifier = Modifier
@@ -100,7 +112,8 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavHostController) {
                         song = audio,
                         isLiked = likedSongs.contains(audio),
                         onClick = { viewModel.playSong(audio) },
-                        onToggleLike = { viewModel.toggleLikeSong(it) }
+                        onToggleLike = { viewModel.toggleLikeSong(it) },
+                        onAddToPlaylist = { viewModel.openAddToPlaylistDialog(it) }
                     )
                 }
             }
@@ -113,7 +126,8 @@ fun SongItem(
     song: AudioFile,
     isLiked: Boolean,
     onClick: () -> Unit,
-    onToggleLike: (AudioFile) -> Unit
+    onToggleLike: (AudioFile) -> Unit,
+    onAddToPlaylist: (AudioFile) -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     Card(
@@ -190,12 +204,12 @@ fun SongItem(
                     )
                     DropdownMenuItem(
                         text = { Text("Add to Playlist") },
-                        onClick = { menuExpanded = false },
+                        onClick = {
+                            onAddToPlaylist(song)
+                            menuExpanded = false
+                        },
                         leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Filled.LibraryAdd,
-                                contentDescription = "Add to Playlist icon",
-                            )
+                            Icon(Icons.Filled.LibraryAdd, contentDescription = "Add to Playlist")
                         }
                     )
                     DropdownMenuItem(

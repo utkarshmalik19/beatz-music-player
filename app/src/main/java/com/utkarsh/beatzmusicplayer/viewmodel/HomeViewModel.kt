@@ -83,7 +83,22 @@ class HomeViewModel(
             _playlists.value = current
         }
     }
+    fun deletePlaylist(name: String) {
+        val updated = _playlists.value.toMutableMap()
+        updated.remove(name)
+        _playlists.value = updated
+    }
 
+    fun renamePlaylist(old: String, new: String) {
+        if (!_playlists.value.containsKey(old)) return
+        val updated = _playlists.value.toMutableMap()
+
+        val songs = updated[old] ?: emptyList()
+        updated.remove(old)
+        updated[new] = songs
+
+        _playlists.value = updated
+    }
     private fun observePlayer() {
         viewModelScope.launch {
             player.currentPosition.collectLatest { _progress.value = it }
@@ -160,5 +175,16 @@ class HomeViewModel(
     override fun onCleared() {
         super.onCleared()
         player.release()
+    }
+
+    private val _selectedSongForPlaylist = MutableStateFlow<AudioFile?>(null)
+    val selectedSongForPlaylist = _selectedSongForPlaylist.asStateFlow()
+
+    fun openAddToPlaylistDialog(song: AudioFile) {
+        _selectedSongForPlaylist.value = song
+    }
+
+    fun closeAddToPlaylistDialog() {
+        _selectedSongForPlaylist.value = null
     }
 }
